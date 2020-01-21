@@ -2,9 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 
 let mainWindow
 
-app.on('ready', () => {
+function createWindow () {
   const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
+  ? `http://localhost:9008`
   : `file://${__dirname}/index.html`
   /**
    * Initial window options
@@ -24,7 +24,9 @@ app.on('ready', () => {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
-})
+}
+
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

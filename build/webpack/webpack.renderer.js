@@ -1,15 +1,17 @@
 const path = require('path')
 const merge = require('webpack-merge')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
 const isDev = process.env.NODE_ENV === 'development'
 
-const config = {
+let config = {
   mode: isDev ? 'development' : 'production',
-  entry: './render/main.js',
+  entry: './renderer/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'render.js',
+    path: path.resolve(__dirname, '../../dist'),
+    filename: 'renderer.js',
   },
   module: {
     rules: [
@@ -22,6 +24,10 @@ const config = {
         loader: 'babel-loader'
       },
       {
+        test: /\.pug$/,
+        loader: 'pug-plain-loader'
+      },
+      {
         test: /\.css$/,
         use: [
           'vue-style-loader',
@@ -29,25 +35,37 @@ const config = {
         ]
       },
       {
-        test: /\.styl$/,
-        use: 'style-loader!css-loader!stylus-loader'
+        test: /\.styl(us)?$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'stylus-loader'
+        ]
       },
     ]
   },
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
   ]
 }
 
 if (isDev) {
   config = merge(config, {
-    devtools: 'eval-source-map',
+    devtool: 'eval-source-map',
     devServer: {
       host: '0.0.0.0',
       port: 9008,
       hot: true,
+      quiet: true,
       contentBase: path.join(__dirname, 'dist'),
-    }
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        title: 'Development',
+        template: 'build/index.html'
+      }),
+      new FriendlyErrorsWebpackPlugin()
+    ]
   })
 }
 
